@@ -21,38 +21,55 @@ const user = sequelize.define('user_entity', {
     },
     full_name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
     },
     email: {
         type: Sequelize.STRING,
+        unique: true,
         isEmail: true,
         allowNull: false
     },
     profile_picture: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     rating: {
         type: Sequelize.INTEGER,
+        defaultValue: "0",
         allowNull: false
     },
     role: {
         type: Sequelize.STRING,
+        defaultValue: "user",
         allowNull: false
-    }
+    },
+    confirmCode: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    is_confirm: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+    },
+    resetToken: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    expires: {
+        type: Sequelize.DATE,
+        allowNull: false,
+    },
 });
 
 class User {
-    async createUser(login, password, full_name, email, profile_picture, rating, role) {
+    async createUser(login, password, full_name, email, confirmCode) {
         try { //TODO сделать обработчик пути картинки
             return await user.create({
                 login: login,
                 password: password,
                 full_name: full_name,
                 email: email,
-                profile_picture: profile_picture,
-                rating: rating,
-                role: role
+                confirmCode: confirmCode
             })
         }
         catch (e) {
@@ -120,7 +137,53 @@ class User {
             return null
         }
     }
-
+    async checkEmail(email){
+        try {
+            return await user.isEmail({
+                email: email
+            })
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+    async sendEmail(email) {
+        try {
+            return await user.create({
+                email: email
+            })
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+    async getUsersByCode(code) {
+        try {
+            return await user.findAll({where: {confirmCode: [code]}})
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+    async getUsersByEmail(email) {
+        try {
+            return await user.findAll({where: {email: [email]}})
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+    async confirmUser(id) {
+        let dataToUpdate = {is_confirm: true}
+        try {
+            return await user.update(dataToUpdate, {where: ({id: id})})
+            //update user set is_confirm=true where id=1;(1- пример значения переменной id)
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
 }
+
 
 module.exports = User;

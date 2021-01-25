@@ -1,18 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const {validationResult} = require('express-validator/check')
+const bcrypt = require('bcryptjs')
 const PostModel = require('../models/post');
 const UserModel = require('../models/user');
 const CategoryModel = require('../models/category');
 const LikeModel = require('../models/like');
 const CommentModel = require('../models/comment');
-const {registerValidators} = require('../validators/auth')
+const TokenModel = require('../models/token');
+const isEmail = require ( 'isemail' );
+const crypto = require('crypto')
+const str_rand = require('../helper/helper');
+const sendMail = require('../helper/sendMail');
+
+//const {registerValidators} = require('../validators/auth')
 
 const Category = new CategoryModel()
 const Comment = new CommentModel()
 const Post = new PostModel()
 const User = new UserModel()
 const Like = new LikeModel()
+const Token = new TokenModel()
+
+
 
 router.get('/', (req, res) => {
    res.send('index', {
@@ -21,26 +30,87 @@ router.get('/', (req, res) => {
 })
 
 // ===========Authentication module=============
-
-router.post('/api/auth/register', registerValidators, async (req, res) => {
-   try {
-      const {email, password, confirm, name} = req.body
-      const candidate = await User.
+router.get('/api/auth/confirm/:code', async (req, res) => {
+   const userByCode = await User.getUsersByCode(req.params.code)
+   if (userByCode !== null) {
+      User.confirmUser(userByCode[0].dataValues.id)
+      res.status(200).send('Email confirm')
+   } else {
+      res.status(404).send('User not found')
    }
 
-   res.send("OK")
+})
+
+router.post('/api/auth/register', async (req, res) => {
+   try {
+      const hashPassword = await bcrypt.hash(req.body.password, 10)
+
+      const validEmail = isEmail.validate(req.body.email, {errorLevel: true})
+      if (validEmail === 0) {
+         const  randStr = str_rand();
+          await User.createUser(req.body.login, hashPassword, req.body.full_name, req.body.email, randStr)
+
+          const message = {
+             to: req.body.email,
+             subject: 'Confirm email',
+             html:  `<h2>Поздравляем, вы успешно зарегестрировались на сайте!<h2>
+                   
+                    <a href="http://localhost:3000/api/auth/confirm/${randStr} ">Перейдите по ссылке для подтверждения регистрации</a>
+                    <br>
+                    <i>Данное письмо не требует ответа</i>`
+          }
+          sendMail(message)
+         user = req.body
+         res.status(201).send("User registered")
+      } else {
+         res.status(400).send("email is not valid")
+      }
+   }
+   catch (e) {
+      console.log(e)
+   }
+
+
    // login, password, password confirm, email
 })
-router.post('/api/auth/login', (req, res) => {
-   res.send("OK login")
-   //вход только с подвержденными параметрами (логин почта пароль)
+router.post('/api/auth/login', async (req, res) => {
+   try {
+      const userEm = await User.getUsersByEmail(req.body.email)
+      if (userEm){
+         const areSame = await bcrypt.compare(req.body.password, userEm[0].dataValues.password)
+         if (areSame) {
+             await Token.createToken( userEm[0].dataValues.id)
+             res.status(200).send('Password confirm, token created')
+         } else {
+            res.status(401).send('Password not confirm')
+         }
+      } else {
+         res.status(404).send('Email not found')
+      }
+   } catch (e) {
+      console.log(e)
+   }
 })
-router.post('/api/auth/logout', (req, res) => {
-   res.send("OK logout")
+router.post('/api/auth/logout', async (req, res) => {
+   // try {
+   //    console.log('==========')
+   //
+   //    console.log(userEm[0].dataValues.token)
+   // const tokenUser = await Token.getUsersByToken(userEm[0].dataValues.id, userEm[0].dataValues.token)
+   //    console.log(tokenUser)
+   // } catch (e) {
+   //    console.log(e)
+   // }
        // выход
 })
-router.post('/api/auth/password-reset', (req, res) => {
-   res.send("OK reset pass")
+router.post('/api/auth/password-reset', async (req, res) => {
+  try {
+       const userEmail = await  User.getUsersByEmail(req.body.email)
+     
+  } catch (e) {
+     console.log(e)
+  }
+
    // смена пароля через почту
 })
 router.post('/api/auth/password-reset/confirm-token', (req, res) => {
