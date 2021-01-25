@@ -16,10 +16,6 @@ const comment = sequelize.define('comment_entity', {
         type: Sequelize.DATE,
         allowNull: false
     },
-    // comment_id: {
-    //     type: Sequelize.INTEGER,
-    //     allowNull: false
-    // },
     content: {
         type: Sequelize.TEXT,
         allowNull:false
@@ -60,15 +56,15 @@ class Comments {
             return null
         }
     }
-
-    async getComment() {
-        try {
-            return await comment.findAll()
-        } catch (e) {
-            console.log(e)
-            return null
-        }
-    }
+    //
+    // async getComment() {
+    //     try {
+    //         return await comment.findAll()
+    //     } catch (e) {
+    //         console.log(e)
+    //         return null
+    //     }
+    // }
 
     async getCommentPostById(author_id, post_id) {
         try {
@@ -86,14 +82,14 @@ class Comments {
             return null
         }
     }
-    async getCommentLikeById(id, comment) {
-        try {
-            return await comment.findAll({where: {id: [id], content: [comment]}})
-        } catch (e) {
-            console.log(e)
-            return null
-        }
-    }
+    // async getCommentLikeById(id, comment) {
+    //     try {
+    //         return await comment.findAll({where: {id: [id], content: [comment]}})
+    //     } catch (e) {
+    //         console.log(e)
+    //         return null
+    //     }
+    // }
 
 
     async deleteCommentById(id) {

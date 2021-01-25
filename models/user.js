@@ -108,6 +108,19 @@ class User {
             return null
         }
     }
+    async updateUserPassword(id, password) {
+        let dataToUpdate = {}
+        if (password !== undefined) {
+            dataToUpdate['password'] = password;
+            try {
+                return await user.update(dataToUpdate, {where: ({id: [id]})})
+            } catch (e) {
+                console.log(e)
+                return null
+            }
+        }
+    }
+
 
     async getUser() {
         try {
@@ -137,24 +150,14 @@ class User {
             return null
         }
     }
-    async checkEmail(email){
+    async createTokenResPasword (user_id, token){
         try {
-            return await user.isEmail({
-                email: email
-            })
+            return await user.update({
+                resetToken: token,
+                expires: Date.now() + 3600000
+            }, {where: {id: [user_id]}})
         } catch (e) {
             console.log(e)
-            return null
-        }
-    }
-    async sendEmail(email) {
-        try {
-            return await user.create({
-                email: email
-            })
-        } catch (e) {
-            console.log(e)
-            return null
         }
     }
     async getUsersByCode(code) {
@@ -165,6 +168,16 @@ class User {
             return null
         }
     }
+
+    async getUsersByResetCode(code) {
+        try {
+            return await user.findAll({where: {resetToken: [code]}})
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+
     async getUsersByEmail(email) {
         try {
             return await user.findAll({where: {email: [email]}})

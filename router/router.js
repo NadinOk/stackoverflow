@@ -8,11 +8,9 @@ const LikeModel = require('../models/like');
 const CommentModel = require('../models/comment');
 const TokenModel = require('../models/token');
 const isEmail = require ( 'isemail' );
-const crypto = require('crypto')
 const str_rand = require('../helper/helper');
 const sendMail = require('../helper/sendMail');
 
-//const {registerValidators} = require('../validators/auth')
 
 const Category = new CategoryModel()
 const Comment = new CommentModel()
@@ -103,19 +101,62 @@ router.post('/api/auth/logout', async (req, res) => {
    // }
        // выход
 })
-router.post('/api/auth/password-reset', async (req, res) => {
-  try {
-       const userEmail = await  User.getUsersByEmail(req.body.email)
-     
-  } catch (e) {
-     console.log(e)
-  }
 
-   // смена пароля через почту
+router.get('/api/auth/password-reset/:code',async (req, res) => {
+   res.status(200).send(`<div><form method="post" action="http://localhost:3000/api/auth/password-reset/confirm-token/${req.params.code}"><input placeholder="New password" name="password" value=""><button type="submit">submit</button></form></div>`)
 })
-router.post('/api/auth/password-reset/confirm-token', (req, res) => {
-   res.send("OK token")
-   // при подтверждении нового пароля с помощью токена обязательный параметр новый пароль
+
+
+router.post('/api/auth/password-reset', async (req, res) => {
+   try {
+      const validEmail = isEmail.validate(req.body.email, {errorLevel: true})
+      if (validEmail === 0) {
+         const user = await User.getUsersByEmail(req.body.email)
+         if (user !== undefined) {
+            const randStr = str_rand();
+            await User.createTokenResPasword(user[0].dataValues.id, randStr)
+            const message = {
+               to: req.body.email,
+               subject: 'Confirm email',
+               html: `<h2>Для смены пароля перейдите по ссылке <h2>
+                   
+                    <a href="http://localhost:3000/api/auth/password-reset/${randStr} "> Сменить пароль </a>
+                    <br>
+                    <i>Данное письмо не требует ответа</i>`
+            }
+            sendMail(message)
+            res.status(201).send("Password reset link send")
+         } else {
+            res.status(404).send('User not found')
+         }
+      } else {
+         res.status(400).send("email is not valid")
+      }
+   }
+   catch(e) {
+      console.log(e);
+   }
+})
+
+router.post('/api/auth/password-reset/confirm-token/:code', async (req, res) => {
+   try {
+      if (req.body.password === undefined) {
+         res.status(400).send('password parameter is missing')
+         return
+      }
+      const user = await User.getUsersByResetCode(req.params.code)
+      if (user.length !== 0) {
+         const hashPassword = await bcrypt.hash(req.body.password, 10)
+         await User.updateUserPassword(user[0].dataValues.id, hashPassword)
+         await User.createTokenResPasword(user[0].dataValues.id, str_rand())
+         res.status(200).send('Password updated')
+      } else {
+         res.status(404).send('User not found')
+      }
+   }
+   catch (e) {
+      console.log(e)
+   }
 })
 
 //================User module===================
