@@ -42,11 +42,10 @@ class Token {
             console.log(e)
         }
     }
-    async confirmToken(id) {
+    async updatedToken(token) {
         let dataToUpdate = {expires_at: Date.now()}
         try {
-            return await token.update(dataToUpdate, {where: ({id: id})})
-            //update user set is_confirm=true where id=1;(1- пример значения переменной id)
+            return await token.update(dataToUpdate, {where: ({token: [token]})})
         } catch (e) {
             console.log(e)
             return null

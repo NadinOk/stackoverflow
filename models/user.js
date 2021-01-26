@@ -53,23 +53,23 @@ const user = sequelize.define('user_entity', {
     },
     resetToken: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
     },
     expires: {
         type: Sequelize.DATE,
-        allowNull: false,
     },
 });
 
 class User {
-    async createUser(login, password, full_name, email, confirmCode) {
+    async createUser(login, password, full_name, email, confirmCode, profile_picture) {
         try { //TODO сделать обработчик пути картинки
             return await user.create({
                 login: login,
                 password: password,
                 full_name: full_name,
                 email: email,
-                confirmCode: confirmCode
+                confirmCode: confirmCode,
+                profile_picture: profile_picture
             })
         }
         catch (e) {

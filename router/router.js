@@ -10,6 +10,9 @@ const TokenModel = require('../models/token');
 const isEmail = require ( 'isemail' );
 const str_rand = require('../helper/helper');
 const sendMail = require('../helper/sendMail');
+const mult = require('multer');
+const path = require('path');
+const upload = require('../helper/upload')
 
 
 const Category = new CategoryModel()
@@ -30,8 +33,10 @@ router.get('/', (req, res) => {
 // ===========Authentication module=============
 router.get('/api/auth/confirm/:code', async (req, res) => {
    const userByCode = await User.getUsersByCode(req.params.code)
+   console.log('=========')
+   console.log(userByCode)
    if (userByCode !== null) {
-      User.confirmUser(userByCode[0].dataValues.id)
+      await User.confirmUser(userByCode[0].dataValues.id)
       res.status(200).send('Email confirm')
    } else {
       res.status(404).send('User not found')
@@ -42,13 +47,12 @@ router.get('/api/auth/confirm/:code', async (req, res) => {
 router.post('/api/auth/register', async (req, res) => {
    try {
       const hashPassword = await bcrypt.hash(req.body.password, 10)
-
       const validEmail = isEmail.validate(req.body.email, {errorLevel: true})
       if (validEmail === 0) {
          const  randStr = str_rand();
-          await User.createUser(req.body.login, hashPassword, req.body.full_name, req.body.email, randStr)
+         await User.createUser(req.body.login, hashPassword, req.body.full_name, req.body.email, randStr)
 
-          const message = {
+         const message = {
              to: req.body.email,
              subject: 'Confirm email',
              html:  `<h2>Поздравляем, вы успешно зарегестрировались на сайте!<h2>
@@ -90,15 +94,17 @@ router.post('/api/auth/login', async (req, res) => {
    }
 })
 router.post('/api/auth/logout', async (req, res) => {
-   // try {
-   //    console.log('==========')
-   //
-   //    console.log(userEm[0].dataValues.token)
-   // const tokenUser = await Token.getUsersByToken(userEm[0].dataValues.id, userEm[0].dataValues.token)
-   //    console.log(tokenUser)
-   // } catch (e) {
-   //    console.log(e)
-   // }
+   try {
+   const userEm = await User.getUsersByEmail(req.body.email)
+      if (userEm) {
+         await Token.updatedToken(userEm[0].dataValues.token)
+         res.status(200).send('Token updated')
+      } else {
+         res.status(400).send('Token not deleted')
+      }
+   } catch (e) {
+      console.log(e)
+   }
        // выход
 })
 
@@ -186,10 +192,14 @@ router.post('/api/users', async (req, res) => {
    }
    // создание юзера с правами администратора
 })
-// router.post('/api/users/avatar', (req, res) => {
-//    res.send("OK")
-//    // загрузка пользователем свой аватар по токену
-// })
+router.post('/api/users/avatar', upload.single('image'), async  (req, res) => {
+   try {
+      const user = User.createUser()
+   } catch (e) {
+      console.log(e)
+   }
+})
+
 router.patch('/api/users/:id', async (req, res) => {
    const uptUser = await User.updateUser(req.params.id, req.body.login, req.body.password, req.body.full_name, req.body.email,
                                           req.body.profile_picture, req.body.rating, req.body.role)
@@ -236,14 +246,20 @@ router.get('/api/posts/:id/comments', async (req, res) => {
    // получить id комментарии
 })
 router.post('/api/posts/:id/comments', async (req, res) => {
-   req.body.author = 1 // удалить после реализации логинки
+   const author = await User.getUsersByEmail(req.body.email) // удалить после реализации логинки
+   // if(author){
+   // res.status(200).send(author)
+   // } else {
+   //    res.status(404).send('author not found')
+   // }
+
    const postFiend = await Post.getPostsById(req.params.id)
    const commentById = await Comment.getCommentPostById(req.params.id)
    if (postFiend !== null && commentById !== null) {
       res.status(400).send('Could not create like: like already exists')
    }
    else if (commentById === null ){
-      const comment = await Comment.createComments(req.body.author, req.body.content, req.params.id)
+      const comment = await Comment.createComments(author[0].dataValues.login, req.body.content, req.params.id)
       if(comment === null){
          res.status(400).send('Could not create comment')
       } else {
