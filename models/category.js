@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../db/database');
+const {PAGE_SIZE} = require("../pagination/pagination");
 
 const category = sequelize.define('category_entity', {
     id: {
@@ -18,7 +19,7 @@ const category = sequelize.define('category_entity', {
     }
 });
 
-class Category {
+class CategoryModel {
     async createCategory(title, description) {
         try {
             return await category.create({
@@ -48,9 +49,9 @@ class Category {
         }
     }
 
-    async getCategories() {
+    async getCategories(page= 1) {
         try {
-            return await category.findAll()
+            return await category.findAll({limit: PAGE_SIZE, offset: page * PAGE_SIZE - PAGE_SIZE})
         } catch (e) {
             console.log(e)
             return null
@@ -79,5 +80,5 @@ class Category {
 
 }
 
-module.exports = Category;
+module.exports = { CategoryModel, category };
 

@@ -1,5 +1,8 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../db/database');
+const user = require('./user')
+const {PAGE_SIZE} = require("../pagination/pagination");
+const {like} = require("./like");
 
 const comment = sequelize.define('comment_entity', {
     id: {
@@ -9,8 +12,8 @@ const comment = sequelize.define('comment_entity', {
         type: Sequelize.INTEGER
     },
     author: {
-        type: Sequelize.STRING,
-        allowNull: false
+        type: Sequelize.INTEGER,
+        allowNull: false,
     },
     publish_date: {
         type: Sequelize.DATE,
@@ -22,13 +25,17 @@ const comment = sequelize.define('comment_entity', {
     }
 });
 
-class Comments {
+comment.hasMany(like, {
+    foreignKey: 'comment_id'
+})
+
+class CommentsModel {
     async createComments(author, comments, id) {
         try {
             return await comment.create({
                 author: author,
-                id: id,
                 content: comments,
+                post_id: id,
                 publish_date: Date.now()
             })
         }
@@ -56,15 +63,7 @@ class Comments {
             return null
         }
     }
-    //
-    // async getComment() {
-    //     try {
-    //         return await comment.findAll()
-    //     } catch (e) {
-    //         console.log(e)
-    //         return null
-    //     }
-    // }
+
 
     async getCommentPostById(author_id, post_id) {
         try {
@@ -74,22 +73,23 @@ class Comments {
             return null
         }
     }
-    async getCommentById(id) {
+    async getCommentsByPostId(postId, page=1) {
         try {
-            return await comment.findAll({where: {id: [id]}})
+            return await comment.findAll({where: ({post_id: postId}), limit: PAGE_SIZE, offset: page * PAGE_SIZE - PAGE_SIZE})
         } catch (e) {
             console.log(e)
             return null
         }
     }
-    // async getCommentLikeById(id, comment) {
-    //     try {
-    //         return await comment.findAll({where: {id: [id], content: [comment]}})
-    //     } catch (e) {
-    //         console.log(e)
-    //         return null
-    //     }
-    // }
+
+    async getCommentById(id) {
+        try {
+            return await comment.findOne({where: {id: id}})
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
 
 
     async deleteCommentById(id) {
@@ -107,4 +107,4 @@ class Comments {
 
 
 
-module.exports = Comments;
+module.exports = { CommentsModel, comment };

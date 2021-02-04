@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../db/database');
-const str_rand = require('../helper/helper');
+
+
+
 
 
 const token = sequelize.define('token_entity', {
@@ -25,15 +27,15 @@ const token = sequelize.define('token_entity', {
     created: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Date.now()
+        defaultValue: Sequelize.NOW
     }
 });
 
-class Token {
-    async createToken(user_id){
+class TokenModel {
+    async createToken(user_id, rand){
         try {
             return  await token.create({
-                token: str_rand(),
+                token: rand,
                 user_id: user_id,
                 created: Date.now(),
                 expires_at: Date.now() + (2 * 60 * 60 *1000)
@@ -42,18 +44,18 @@ class Token {
             console.log(e)
         }
     }
-    async updatedToken(token) {
+    async logout(t) {
         let dataToUpdate = {expires_at: Date.now()}
         try {
-            return await token.update(dataToUpdate, {where: ({token: [token]})})
+            return await token.update(dataToUpdate, {where: ({token: [t]})})
         } catch (e) {
             console.log(e)
             return null
         }
     }
-    async getUsersByToken(id, {token}) {
+    async getUserByToken(t) {
         try {
-            return await token.findAll({where: {id: [id, token]}})
+            return await token.findOne({where: {token: [t]}})
         } catch (e) {
             console.log(e)
             return null
@@ -61,4 +63,4 @@ class Token {
     }
 }
 
-module.exports = Token
+module.exports = { TokenModel, token }

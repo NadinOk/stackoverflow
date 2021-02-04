@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../db/database');
+const {PAGE_SIZE} = require("../pagination/pagination");
 
 const like = sequelize.define('like_entity', {
     id: {
@@ -9,7 +10,7 @@ const like = sequelize.define('like_entity', {
         type: Sequelize.INTEGER
     },
     author: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: false
     },
     publish_date: {
@@ -31,7 +32,7 @@ const like = sequelize.define('like_entity', {
     }
 })
 
-class Like {
+class LikeModel {
     async createLike(author, type_like, data) {
         try {
             return await like.create({
@@ -49,20 +50,46 @@ class Like {
 
     async getPostsLikeById(user_id, post_id) {
         try {
-            return await like.findAll({where: {author: [user_id], post_id: [post_id]}})
+            return await like.findOne({where: {author: [user_id], post_id: [post_id]}})
         } catch (e) {
             console.log(e)
             return null
         }
     }
+    // async getPostsCatById(user_id, post_id) {
+    //     try {
+    //         return await like.findAll({where: {author: [user_id], post_id: [post_id]}})
+    //     } catch (e) {
+    //         console.log(e)
+    //         return null
+    //     }
+    // }
     async getCommentsLikeById(user_id, comment_id) {
         try {
-            return await like.findAll({where: {author: [user_id], comment_id: [comment_id]}})
+            return await like.findOne({where: {author: user_id, comment_id: comment_id}})
         } catch (e) {
             console.log(e)
             return null
         }
     }
+    async getLikePostById(post_id, page=1) {
+        try {
+            return await like.findAll({where: ({post_id: post_id}), limit: PAGE_SIZE, offset: page * PAGE_SIZE - PAGE_SIZE})
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+    async getLikeByCommentId(id_com, page=1) {
+        try {
+            return await like.findAll({where: ({comment_id: id_com}),  limit: PAGE_SIZE, offset: page * PAGE_SIZE - PAGE_SIZE})
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+
+
     async getLikeByPostId(id) {
         try {
             return await like.findAll({where: {id: [id]}})
@@ -85,4 +112,4 @@ class Like {
 }
 
 
-    module.exports = Like;
+module.exports = { LikeModel, like };

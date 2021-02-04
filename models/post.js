@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../db/database');
-
+const {comment} = require("./comment");
+const {like} = require("./like");
+const {PAGE_SIZE} = require("../pagination/pagination");
 
 const post = sequelize.define('post_entity', {
     id: {
@@ -10,7 +12,7 @@ const post = sequelize.define('post_entity', {
         type: Sequelize.INTEGER
     },
     author: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: false
     },
     title: {
@@ -19,6 +21,7 @@ const post = sequelize.define('post_entity', {
     },
     publish_date: {
         type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
         allowNull: false
     },
     status: {
@@ -35,7 +38,15 @@ const post = sequelize.define('post_entity', {
     }
 });
 
-class Post {
+post.hasMany(like, {
+    foreignKey: 'post_id'
+})
+
+post.hasMany(comment, {
+    foreignKey: 'post_id'
+})
+
+class PostModel {
     async createPost(author, title, publish_date, content, status, categories) {
         try {
             return await post.create({
@@ -81,9 +92,9 @@ class Post {
         }
     }
 
-    async getPosts() {
+    async getPosts( page=1) {
         try {
-            return await post.findAll()
+            return await post.findAll({limit: PAGE_SIZE, offset: page * PAGE_SIZE - PAGE_SIZE})
         } catch (e) {
             console.log(e)
             return null
@@ -93,6 +104,15 @@ class Post {
     async getPostsById(id) {
         try {
             return await post.findAll({where: {id: [id]}})
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+
+    async getPostById(id) {
+        try {
+            return await post.findOne({where: {id: [id]}})
         } catch (e) {
             console.log(e)
             return null
@@ -113,4 +133,4 @@ class Post {
 }
 
 
-module.exports = Post;
+module.exports = { PostModel, post};

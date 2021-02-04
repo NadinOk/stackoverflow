@@ -1,5 +1,10 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../db/database');
+const {like} = require("./like");
+const {token} = require("./token");
+const {post} = require("./post");
+const {comment} = require("./comment");
+const {PAGE_SIZE} = require("../pagination/pagination");
 
 
 
@@ -60,19 +65,43 @@ const user = sequelize.define('user_entity', {
     },
 });
 
-class User {
-    async createUser(login, password, full_name, email, confirmCode, profile_picture) {
-        try { //TODO сделать обработчик пути картинки
+user.hasMany(comment, {
+    foreignKey: 'author'
+})
+
+user.hasMany(post, {
+    foreignKey: 'author'
+})
+
+user.hasMany(like, {
+    foreignKey: 'author'
+})
+
+user.hasMany(token, {
+    foreignKey: 'user_id'
+})
+
+class UserModel {
+    async createUser(login, password, full_name, email, confirmCode) {
+        try {
             return await user.create({
                 login: login,
                 password: password,
                 full_name: full_name,
                 email: email,
                 confirmCode: confirmCode,
-                profile_picture: profile_picture
             })
         }
         catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+
+    async updateUserAvatar(id, profile_picture) {
+        try {
+            return await user.update({profile_picture: profile_picture}, {where: ({id: id})})
+        }catch (e){
             console.log(e)
             return null
         }
@@ -122,9 +151,9 @@ class User {
     }
 
 
-    async getUser() {
+    async getUsers(page=1) {
         try {
-            return await user.findAll()
+            return await user.findAll({limit: PAGE_SIZE, offset: page * PAGE_SIZE - PAGE_SIZE})
         } catch (e) {
             console.log(e)
             return null
@@ -134,6 +163,15 @@ class User {
     async getUsersById(id) {
         try {
             return await user.findAll({where: {id: [id]}})
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+
+    async getUserById(id) {
+        try {
+            return await user.findOne({where: {id: [id]}})
         } catch (e) {
             console.log(e)
             return null
@@ -160,27 +198,35 @@ class User {
             console.log(e)
         }
     }
-    async getUsersByCode(code) {
+    async getUserByCode(code) {
         try {
-            return await user.findAll({where: {confirmCode: [code]}})
+            return await user.findOne({where: {confirmCode: [code]}})
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+    async getUsersByLogin(login) {
+        try {
+            return await user.findAll({where: {login: [login]}})
         } catch (e) {
             console.log(e)
             return null
         }
     }
 
-    async getUsersByResetCode(code) {
+    async getUserByResetCode(code) {
         try {
-            return await user.findAll({where: {resetToken: [code]}})
+            return await user.findOne({where: {resetToken: [code]}})
         } catch (e) {
             console.log(e)
             return null
         }
     }
 
-    async getUsersByEmail(email) {
+    async getUserByEmail(email) {
         try {
-            return await user.findAll({where: {email: [email]}})
+            return await user.findOne({where: {email: [email]}})
         } catch (e) {
             console.log(e)
             return null
@@ -196,7 +242,14 @@ class User {
             return null
         }
     }
+
+    async updateRatingByUserId(userId, like_type) {
+        if (like_type === 'like') {
+            await user.increment('rating', {where: {id: userId}})
+        } else {
+            await user.decrement('rating', {where: {id: userId}})
+        }
+    }
 }
 
-
-module.exports = User;
+module.exports = { UserModel };
