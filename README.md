@@ -1,7 +1,7 @@
 #***STACKOVERFLOW***<br/>
 ##**USOF**<br/>
 
-description:
+###description:
 
 My task at the moment is to create an API for a future Q&A service for professional programmers and enthusiasts. The latter allows you to share your problems / solutions with short messages and get solutions / feedback or even increase the rating of your profile.
 
