@@ -29,7 +29,7 @@ My task at the moment is to create an API for a future Q&A service for professio
 - [x]  - /api/users/<user_id> - update user data<br/>
 - [x] DELETE - /api/users/<user_id> - delete user<br/>
 
-##**Post module**:<br/>
+**Post module**:<br/>
 - [x] GET - /api/posts- get all posts.This endpoint doesn't require any role, it ispublic. If there are too many posts, you must implement pagination. Page size isup to you<br/>
 - [x] GET - /api/posts/<post_id> - get specified post data.Endpoint is public<br/>
 - [x] GET - /api/posts/<post_id>/comments - get all comments for the specified post.Endpoint is public<br/>
@@ -46,7 +46,7 @@ My task at the moment is to create an API for a future Q&A service for professio
 - [x] POST - /api/posts/<post_id>/subscribe - Subscribe to post.<br/>
 - [x] POST - /api/posts/<post_id>/unsubscribe - Unsubscribe from post.<br/>
 
-##**Categories module**:<br/>
+**Categories module**:<br/>
 - [x] GET - /api/categories- get all categories<br/>
 - [x] GET - /api/categories/<category_id> - get specified category data<br/>
 - [x] GET - /api/categories/<category_id>/posts - get all posts associated with thespecified category<br/>
@@ -54,7 +54,7 @@ My task at the moment is to create an API for a future Q&A service for professio
 - [x] PATCH - /api/categories/<category_id> - update specified category data<br/>
 - [x] DELETE - /api/categories/<category_id> - delete a category<br/>
 
-##**Comments module**:<br/>
+**Comments module**:<br/>
 - [x] GET - /api/comments/<comment_id> - get specified comment data<br/>
 - [x] GET - /api/comments/<comment_id>/like - get all likes under the specified comment<br/>
 - [x] POST - /api/comments/<comment_id>/like - create a new like under a comment<br/>
@@ -62,7 +62,7 @@ My task at the moment is to create an API for a future Q&A service for professio
 - [x] DELETE - /api/comments/<comment_id> - delete a comment<br/>
 - [x] DELETE - /api/comments/<comment_id>/like - delete a like under a comment<br/>
 
-##**Database tables**:<br/>
+**Database tables**:<br/>
 - Categories<br/>
 - Comments<br/>
 - Likes<br/>
@@ -72,11 +72,11 @@ My task at the moment is to create an API for a future Q&A service for professio
 
 
 
-#Future plans
+Future plans
 - Limit User access to inactive posts so that user can see only their own inactive posts
 - Favourites: add functionality to add posts to list of favourites
 
-#installation:
+installation:
 ```md
 > npm install
 > mysql -u usof 
@@ -84,12 +84,12 @@ My task at the moment is to create an API for a future Q&A service for professio
 > GRANT ALL PRIVILEGES ON * . * TO usof;
 
 ```
-#usage:
+usage:
 ```md
 > npm run dev
 ```
 
-#dependencies:<br/>
+dependencies:<br/>
 ```md
 "axios": "^0.21.1",<br/>
 "bcryptjs": "^2.4.3",<br/>
@@ -110,5 +110,5 @@ node v13 and higher<br/>
 npm v13 and higher<br/>
 ```
 
-##Author:<br/>
+*Author:<br/>
 **Nadezda Onopriienko** :hatching_chick: 
