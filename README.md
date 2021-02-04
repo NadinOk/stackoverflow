@@ -110,5 +110,5 @@ node v13 and higher<br/>
 npm v13 and higher<br/>
 ```
 
-*Author:<br/>
+*Author*:<br/>
 **Nadezda Onopriienko** :hatching_chick: 
