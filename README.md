@@ -1,11 +1,11 @@
-#***STACKOVERFLOW***<br/>
-##**USOF**<br/>
+***STACKOVERFLOW***<br/>
+**USOF**<br/>
 
-###description:
+description:
 
 My task at the moment is to create an API for a future Q&A service for professional programmers and enthusiasts. The latter allows you to share your problems / solutions with short messages and get solutions / feedback or even increase the rating of your profile.
 
-###**During the challenge I implemented**:<br/>
+**During the challenge I implemented**:<br/>
 
 - User and Admin access rights
 - User Authentication
@@ -14,14 +14,14 @@ My task at the moment is to create an API for a future Q&A service for professio
 - Functionality to reset password and verify user email
 - CRUD operations for Posts, Comments, Categories, Likes, Subscribers, Users
 
-##**Authentication module**:<br/>
+**Authentication module**:<br/>
 - [x] POST - /api/auth/register - registration of a new user, required parameters are [login, password, password confirmation, email]<br/>
 - [x] POST - /api/auth/login - log in user, required parameters are [login, email,password]. Only users with a confirmed email can sign in<br/>
 - [x] POST - /api/auth/logout - log out authorized user<br/>
 - [x] POST - /api/auth/password-reset - send a reset link to user email, requiredparameter is [email]<br/>
 - [x] POST - /api/auth/password-reset/<confirm_token> - confirm new password with a token from email, required parameter is a [new password]<br/>
 
-##**User module**:<br/>
+**User module**:<br/>
 - [x] GET - /api/users - get all users<br/>
 - [x] GET - /api/users/<user_id> - get specified user data<br/>
 - [x] POST - /api/users - create a new user, required parameters are [login, password,password confirmation, email, role]. This feature must be accessible only for admins<br/>
