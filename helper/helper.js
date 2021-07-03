@@ -48,7 +48,7 @@ function sendConfirmEmail(randStr, email) {
         subject: 'Confirm email',
         html: `<h2>Для смены пароля перейдите по ссылке <h2>
                    
-                    <a href="http://localhost:3000/api/auth/password-reset/${randStr} "> Сменить пароль </a>
+                    <a href="http://localhost:3000/password-reset/${randStr} "> Сменить пароль </a>
                     <br>
                     <i>Данное письмо не требует ответа</i>`
     }

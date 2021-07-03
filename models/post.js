@@ -1,50 +1,6 @@
 const Sequelize = require('sequelize');
-const sequelize = require('../db/database');
-const {comment} = require("./comment");
-const {like} = require("./like");
+const {post, like, comment, user} = require("../db/database");
 const {PAGE_SIZE} = require("../pagination/pagination");
-
-const post = sequelize.define('post_entity', {
-    id: {
-        primaryKey: true,
-        autoIncrement: true,
-        allowNull: false,
-        type: Sequelize.INTEGER
-    },
-    author: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-    },
-    title: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    publish_date: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
-        allowNull: false
-    },
-    status: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    content: {
-        type: Sequelize.TEXT,
-        allowNull:false
-    },
-    categories: {
-        type: Sequelize.STRING,
-        allowNull: false
-    }
-});
-
-post.hasMany(like, {
-    foreignKey: 'post_id'
-})
-
-post.hasMany(comment, {
-    foreignKey: 'post_id'
-})
 
 class PostModel {
     async createPost(author, title, publish_date, content, status, categories) {
@@ -93,8 +49,14 @@ class PostModel {
     }
 
     async getPosts( page=1) {
+        
         try {
-            return await post.findAll({limit: PAGE_SIZE, offset: page * PAGE_SIZE - PAGE_SIZE})
+            return await post.findAll({
+                limit: PAGE_SIZE,
+                offset: page * PAGE_SIZE - PAGE_SIZE,
+                include:[{model: user, as: 'Author', attributes: ['login']}],
+                order: [['publish_date', 'DESC']]
+            })
         } catch (e) {
             console.log(e)
             return null
@@ -102,8 +64,22 @@ class PostModel {
     }
 
     async getPostsById(id) {
+
         try {
-            return await post.findAll({where: {id: [id]}})
+            return await post.findAll(
+                {where: {id: [id]},
+                include:[{model: user, as: 'Author', attributes: ['login']}]
+                })
+        } catch (e) {
+            console.log(e)
+            return null
+        }
+    }
+
+
+    async getUserPostsById(user_id) {
+        try {
+            return await post.findAll({where: {author: [user_id]}})
         } catch (e) {
             console.log(e)
             return null
@@ -112,7 +88,10 @@ class PostModel {
 
     async getPostById(id) {
         try {
-            return await post.findOne({where: {id: [id]}})
+            return await post.findOne(
+                {where: {id: [id]},
+                    // include:[{model: user, as: 'Author', attributes: ['login']}]
+                })
         } catch (e) {
             console.log(e)
             return null

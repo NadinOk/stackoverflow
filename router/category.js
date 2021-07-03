@@ -10,11 +10,11 @@ const Post = new PostModel()
 //================Categories module===============
 
 router.get('/', async (req, res) => {
-    if (!await checkPermission(req, res)) return;
+    // if (!await checkPermission(req, res)) return;
 
     const allCat = await Category.getCategories(req.query.page);
     if (allCat !== null) {
-        res.status(201).send(allCat)
+        res.status(200).send(allCat)
     } else {
         res.status(400).send('Could not get categories')
     }
@@ -24,7 +24,7 @@ router.get('/:id', async (req, res) => {
 
     const catById = await Category.getCategoryById(req.params.id)
     if (catById !== null) {
-        res.status(201).send(catById)
+        res.status(200).send(catById)
     } else {
         res.status(400).send('Could not get category by id')
     }
@@ -34,7 +34,7 @@ router.get('/:id/posts', async (req, res) => {
 
     const post = await Post.getPostsById(req.params.id)
     if (post !== null) {
-        res.status(201).send(post)
+        res.status(200).send(post)
     } else {
         res.status(404).send('Post not found')
     }

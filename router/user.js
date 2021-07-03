@@ -5,8 +5,10 @@ const upload = require('../helper/upload')
 const { str_rand, getCurrentUser } = require("../helper/helper");
 
 const {UserModel} = require("../models/user");
+const {PostModel} = require("../models/post");
 const {checkPermission} = require("../helper/helper");
 const User = new UserModel()
+const Post = new PostModel()
 //================User module===================
 
 router.get('/', async (req, res) => {
@@ -14,7 +16,7 @@ router.get('/', async (req, res) => {
 
     const allUsers = await User.getUsers(req.query.page);
     if (allUsers !== null) {
-        res.status(201).send(allUsers)
+        res.status(200).send(allUsers)
     } else {
         res.status(400).send('Could not get users')
     }
@@ -23,13 +25,27 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     if (!checkPermission(req, res)) return;
 
-    const userById = await User.getUsersById(req.params.id)
+    const userById = await User.getUserById(req.params.id)
     if (userById !== null) {
-        res.status(201).send(userById)
+        res.status(200).send(userById)
     } else {
         res.status(400).send('Could not get user by id' )
     }
 })
+
+
+router.get('/:id/posts', async (req, res) => {
+    if (!checkPermission(req, res)) return;
+
+    const postsId = await Post.getUserPostsById(req.params.id, )
+    if (postsId !== null) {
+        res.status(200).send(postsId)
+    } else {
+        res.status(400).send('Could not get posts by user id' )
+    }
+})
+
+
 router.post('/', async (req, res) => {
     if (!checkPermission(req, res)) return;
 
@@ -48,9 +64,10 @@ router.post('/', async (req, res) => {
 })
 router.post('/:id/avatar', upload.single('image'), async  (req, res) => {
     if (!checkPermission(req, res)) return;
-
+    
     try {
         const user = await User.getUsersById(req.params.id);
+        console.log(req.file)
         if (user !== undefined && user.length > 0) {
             await User.updateUserAvatar(req.params.id, req.file.filename)
             res.status(201).send('avatar uploaded')

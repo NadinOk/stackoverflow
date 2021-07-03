@@ -1,36 +1,5 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../db/database');
+const {like} = require("../db/database");
 const {PAGE_SIZE} = require("../pagination/pagination");
-
-const like = sequelize.define('like_entity', {
-    id: {
-        primaryKey: true,
-        autoIncrement: true,
-        allowNull: false,
-        type: Sequelize.INTEGER
-    },
-    author: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-    },
-    publish_date: {
-        type: Sequelize.DATE,
-        allowNull: false
-    },
-    post_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true
-    },
-    comment_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true
-    },
-    type_like: {
-        type: Sequelize.ENUM,
-        values: ['like', 'dislike'],
-        allowNull: false
-    }
-})
 
 class LikeModel {
     async createLike(author, type_like, data) {
@@ -112,4 +81,4 @@ class LikeModel {
 }
 
 
-module.exports = { LikeModel, like };
+module.exports = { LikeModel };

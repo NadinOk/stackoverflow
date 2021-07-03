@@ -41,7 +41,7 @@ router.post('/register', async (req, res) => {
                 subject: 'Confirm email',
                 html: `<h2>Поздравляем, вы успешно зарегестрировались на сайте!<h2>
                    
-                    <a href="http://localhost:3000/api/auth/confirm/${randStr}  ">Перейдите по ссылке для подтверждения регистрации</a>
+                    <a href="http://localhost:3001/api/auth/confirm/${randStr}  ">Перейдите по ссылке для подтверждения регистрации</a>
                     <br>
                     <i>Данное письмо не требует ответа</i>`
             }
@@ -82,9 +82,9 @@ router.post('/logout', async (req, res) => {
     }
 })
 
-router.get('/password-reset/:code', async (req, res) => {
-    res.status(200).send(`<div><form method="post" action="http://localhost:3000/password-reset/confirm-token/${req.params.code}"><input placeholder="New password" name="password" value=""><button type="submit">submit</button></form></div>`)
-})
+// router.get('/password-reset/:code', async (req, res) => {
+//     res.status(200).send(`<div><form method="post" action="http://localhost:3001/password-reset/confirm-token/${req.params.code}"><input placeholder="New password" name="password" value=""><button type="submit">submit</button></form></div>`)
+// })
 
 
 router.post('/password-reset', async (req, res) => {
@@ -110,7 +110,8 @@ router.post('/password-reset', async (req, res) => {
 
 router.post('/password-reset/confirm-token/:code', async (req, res) => {
     try {
-        if (req.body.password === undefined) {
+        if (!req.body.password) {
+            console.log(req.params.code)
             res.status(400).send('password parameter is missing')
             return
         }

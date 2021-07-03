@@ -1,85 +1,6 @@
-const Sequelize = require('sequelize');
-const sequelize = require('../db/database');
-const {like} = require("./like");
-const {token} = require("./token");
-const {post} = require("./post");
-const {comment} = require("./comment");
+const {user, like, token, post, comment} = require("../db/database");
 const {PAGE_SIZE} = require("../pagination/pagination");
 
-
-
-const user = sequelize.define('user_entity', {
-    id: {
-        primaryKey: true,
-        autoIncrement: true,
-        allowNull: false,
-        type: Sequelize.INTEGER
-    },
-    login: {
-        type: Sequelize.STRING,
-        unique: true,
-        allowNull: false
-    },
-    password: {
-        type: Sequelize.STRING,
-        allowNull: false,
-    },
-    full_name: {
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    email: {
-        type: Sequelize.STRING,
-        unique: true,
-        isEmail: true,
-        allowNull: false
-    },
-    profile_picture: {
-        type: Sequelize.STRING,
-        allowNull: true,
-    },
-    rating: {
-        type: Sequelize.INTEGER,
-        defaultValue: "0",
-        allowNull: false
-    },
-    role: {
-        type: Sequelize.STRING,
-        defaultValue: "user",
-        allowNull: false
-    },
-    confirmCode: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    is_confirm: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
-    },
-    resetToken: {
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    expires: {
-        type: Sequelize.DATE,
-    },
-});
-
-user.hasMany(comment, {
-    foreignKey: 'author'
-})
-
-user.hasMany(post, {
-    foreignKey: 'author'
-})
-
-user.hasMany(like, {
-    foreignKey: 'author'
-})
-
-user.hasMany(token, {
-    foreignKey: 'user_id'
-})
 
 class UserModel {
     async createUser(login, password, full_name, email, confirmCode) {
@@ -177,6 +98,8 @@ class UserModel {
             return null
         }
     }
+
+    
 
     async deleteUserById(id) {
         try {

@@ -16,11 +16,15 @@ const User = new UserModel()
 
 //================Post module===================
 router.get('/', async (req, res) => {
-    if (!await checkPermission(req, res)) return;
+    //if (!await checkPermission(req, res)) return;
 
     const allPosts = await Post.getPosts(req.query.page);
+
     if (allPosts !== null) {
-        res.status(201).send(allPosts)
+
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        res.status(200).send(allPosts)
     } else {
         res.status(400).send('Could not get posts')
     }
@@ -30,17 +34,20 @@ router.get('/:id', async (req, res) => {
 
     const posById = await Post.getPostsById(req.params.id)
     if (posById !== null) {
-        res.status(201).send(posById)
+        res.status(200).send(posById)
     } else {
         res.status(400).send('Could not get post by id')
     }
 })
+
+
+
 router.get('/:id/comments', async (req, res) => {
     if (!await checkPermission(req, res)) return;
 
     const comment = await Comment.getCommentsByPostId(req.params.id, req.query.page)
     if (comment !== null) {
-        res.status(201).send(comment)
+        res.status(200).send(comment)
     } else {
         res.status(404).send('comment not found')
     }
@@ -68,7 +75,7 @@ router.get('/:id/categories', async (req, res) => {
     const posById = await Post.getPostsById(req.params.id)
     const categor = await Category.getCategoryById(req.params.id)
     if (posById !== null && categor !== null) {
-        res.status(201).send(categor)
+        res.status(200).send(categor)
     } else {
         res.status(404).send('categories not found')
     }
@@ -79,7 +86,7 @@ router.get('/:id/like', async (req, res) => {
 
     const like = await Like.getLikePostById(req.params.id, req.query.page)
     if (like !== null ) {
-        res.status(201).send(like)
+        res.status(200).send(like)
     } else {
         res.status(404).send('Like not found')
     }

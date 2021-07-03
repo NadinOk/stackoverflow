@@ -1,33 +1,10 @@
-const Sequelize = require('sequelize');
 const sequelize = require('../db/database');
-const user = require('./user')
+const {post} = require("../db/database");
+const {user} = require("../db/database");
+const {comment} = require("../db/database");
 const {PAGE_SIZE} = require("../pagination/pagination");
-const {like} = require("./like");
 
-const comment = sequelize.define('comment_entity', {
-    id: {
-        primaryKey: true,
-        autoIncrement: true,
-        allowNull: false,
-        type: Sequelize.INTEGER
-    },
-    author: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-    },
-    publish_date: {
-        type: Sequelize.DATE,
-        allowNull: false
-    },
-    content: {
-        type: Sequelize.TEXT,
-        allowNull:false
-    }
-});
 
-comment.hasMany(like, {
-    foreignKey: 'comment_id'
-})
 
 class CommentsModel {
     async createComments(author, comments, id) {
@@ -68,6 +45,7 @@ class CommentsModel {
     async getCommentPostById(author_id, post_id) {
         try {
             return await comment.findAll({where: {id: [author_id], post_id: [post_id]}})
+        
         } catch (e) {
             console.log(e)
             return null
@@ -75,7 +53,10 @@ class CommentsModel {
     }
     async getCommentsByPostId(postId, page=1) {
         try {
-            return await comment.findAll({where: ({post_id: postId}), limit: PAGE_SIZE, offset: page * PAGE_SIZE - PAGE_SIZE})
+            return await comment.findAll({where: ({post_id: postId}), limit: PAGE_SIZE, offset: page * PAGE_SIZE - PAGE_SIZE,
+                include:[{model: user, as: 'CommentAuthor', attributes: ['login']}]
+                })
+                
         } catch (e) {
             console.log(e)
             return null

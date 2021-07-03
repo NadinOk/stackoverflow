@@ -7,20 +7,22 @@ const storage = multer.diskStorage({
         cb(null, 'images/');
     },
     filename: (req, file, cb) => {
-        cb(null,  file.fieldname + '-' + Date.now());
+        cb(null,  file.fieldname + '-' + Date.now() + '.png');
     }
 });
 
 const upload = multer ({
     storage: storage,
     destination: '../images',
-    limit: {
-        fileSize: 2 * 512 * 512
+    limits: {
+        fileSize: 1000000
     },
     filename: (req, file, cb) => {
-        cb(null,  file.fieldname + '-' + Date.now());
+        
+        cb(null,  file.fieldname + '-' + Date.now()) + '.png';
     },
     fileFilter (req, file, cb) {
+        
         if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg') {
             cb(null, true)
         } else (
@@ -30,4 +32,10 @@ const upload = multer ({
 });
 
 
+
+
 module.exports = upload;
+
+
+
+

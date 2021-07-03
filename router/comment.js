@@ -28,7 +28,7 @@ router.get('/:id/like', async (req, res) => {
     const likes = await Like.getLikeByCommentId(req.params.id, req.query.page)
 
     if(likes !== null){
-        res.status(201).send(likes)
+        res.status(200).send(likes)
     } else {
         res.status(404).send('Like not found' )
     }
